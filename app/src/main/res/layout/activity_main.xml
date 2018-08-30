@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <Spinner
+        android:id="@+id/spinner_nap_time"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center"
+        android:textAlignment="center"></Spinner>
+
+    <Button
+        android:id="@+id/select_alarm"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:layout_gravity="center"
+        android:text="Select Alarm"/>
+
+    <ToggleButton
+        android:id="@+id/button_set_alarm"
+        android:layout_marginTop="28dp"
+        android:padding="28dp"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="ALARM OFF"
+        android:textOff="ALARM OFF"
+        android:textOn="ALARM ON"
+        android:layout_gravity="center"/>
+
+
+
+
+</LinearLayout>
