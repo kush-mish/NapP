@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Nappy</string>
     <string name="power_notifications_ringtone_title">Select Alarm Tone</string>
+    <string name="notifWakeupContent">Wake Up ! !</string>
     <string-array name="nap_time">
         <item>10 sec</item>
         <item>10 min</item>

@@ -29,11 +29,17 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     AlarmManager alarmManager;
     PendingIntent pendingIntent;
     private long napTime;
+    boolean buttonState;
+    ToggleButton setAlarmButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        if(AlarmManagerBroadcastReceiver.mRingtone != null)
+            AlarmManagerBroadcastReceiver.stopRingtone();
 
         Spinner napTimeSelector = (Spinner) findViewById(R.id.spinner_nap_time);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -43,7 +49,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         napTimeSelector.setOnItemSelectedListener(this);
 
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        ToggleButton setAlarmButton = (ToggleButton) findViewById(R.id.button_set_alarm);
+        setAlarmButton = (ToggleButton) findViewById(R.id.button_set_alarm);
+        setAlarmButton.setChecked(buttonState);
         setAlarmButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -61,7 +68,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 } else {
                     // The toggle is disabled
                     alarmManager.cancel(pendingIntent);
-                    Toast.makeText(getApplicationContext(), "Alarm off",
+                    Toast.makeText(getApplicationContext(), "ALARM OFF",
                             Toast.LENGTH_SHORT).show();
                     if(AlarmManagerBroadcastReceiver.mRingtone != null)
                         AlarmManagerBroadcastReceiver.stopRingtone();
@@ -82,7 +89,29 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         });
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("buttonState", setAlarmButton.isChecked());
+    }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        savedInstanceState.getBoolean("buttonState");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        buttonState = setAlarmButton.isChecked();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setAlarmButton.setChecked(buttonState);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -98,10 +127,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
