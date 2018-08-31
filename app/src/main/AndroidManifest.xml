@@ -21,6 +21,7 @@
             </intent-filter>
         </activity>
         <receiver android:name=".AlarmManagerBroadcastReceiver" />
+        <receiver android:name=".ButtonReceiver"/>
     </application>
 
 </manifest>

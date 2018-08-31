@@ -58,9 +58,14 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
         PendingIntent pendingIntent = stackBuilder.getPendingIntent(ALARM_NOTIFICATION_REQUEST_CODE,
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification notification = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            notification = new Notification.Builder(context)
+
+        Intent dismissIntent = new Intent(context, ButtonReceiver.class);
+        dismissIntent.putExtra("notificationId", ALARM_NOTIFICATION_REQUEST_CODE);
+
+        PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(context, 0,
+                dismissIntent, 0);
+
+        Notification notification = new Notification.Builder(context)
                     .setSmallIcon(R.drawable.ic_stat_access_alarm)
                     .setContentTitle(title)
                     .setContentText(content)
@@ -68,9 +73,10 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
                     // Set the intent that will fire when the user taps the notification
                     .setContentIntent(pendingIntent)
                     .setFullScreenIntent(pendingIntent, true)
-                    .setAutoCancel(true).setVisibility(Notification.VISIBILITY_PUBLIC)
+                    .setAutoCancel(true)
+                .addAction(R.drawable.ic_stat_access_alarm, "Dismiss Alarm", dismissPendingIntent)
                     .build();
-        }
+
 
 
         NotificationManager notificationManager = (NotificationManager)

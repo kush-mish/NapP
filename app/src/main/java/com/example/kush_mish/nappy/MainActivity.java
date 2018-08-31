@@ -30,7 +30,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     PendingIntent pendingIntent;
     private long napTime;
     boolean buttonState;
-    ToggleButton setAlarmButton;
+    public ToggleButton setAlarmButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,8 +80,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         selectAlarm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent notificationIntent = new Intent(getApplicationContext(), AlarmNotification.class);
-                startService(notificationIntent);
+
 
                 Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
                 startActivityForResult(intent, RQS_RINGTONEPICKER);
