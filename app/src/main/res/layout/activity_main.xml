@@ -10,49 +10,50 @@
         android:id="@+id/spinner_nap_time"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
         android:layout_gravity="center"
+        android:layout_marginTop="48dp"
         android:textAlignment="center"></Spinner>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_gravity="center"
         android:layout_marginTop="32dp"
-        android:layout_gravity="center">
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/select_alarm"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginLeft="32dp"
+            android:layout_weight="2"
+            android:padding="16dp"
             android:text="Select Alarm"
-            android:minEms="14"
-            android:layout_marginLeft="48dp"/>
+            android:textAllCaps="true" />
 
         <CheckBox
-            android:layout_marginLeft="24dp"
             android:id="@+id/checkbox_vibrate"
-            android:text="@string/vibrate"
-            android:textAllCaps="true"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="32dp"
             android:layout_weight="1"
-            android:layout_marginRight="48dp"/>
+            android:minWidth="32dp"
+            android:text="@string/vibrate"
+            android:textAllCaps="true" />
     </LinearLayout>
 
     <ToggleButton
         android:id="@+id/button_set_alarm"
-        android:layout_marginTop="28dp"
-        android:padding="32dp"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="28dp"
+        android:padding="32dp"
         android:text="ALARM OFF"
-        android:textOff="ALARM OFF"
-        android:textOn="ALARM ON"
-        android:layout_gravity="center"/>
-
-
+        android:textAllCaps="true"
+        android:textOff="@string/alarm_off"
+        android:textOn="@string/alarm_on" />
 
 
 </LinearLayout>

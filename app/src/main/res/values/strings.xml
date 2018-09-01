@@ -11,4 +11,6 @@
         <item>1 hour</item>
     </string-array>
     <string name="vibrate">Vibrate</string>
+    <string name="alarm_off">Alarm Off</string>
+    <string name="alarm_on">Alarm On</string>
 </resources>

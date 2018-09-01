@@ -2,38 +2,36 @@ package com.example.kush_mish.nappy;
 
 import android.app.Activity;
 import android.app.AlarmManager;
-import android.app.KeyguardManager;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener {
+public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener,CompoundButton.OnCheckedChangeListener{
 
     private static final int RQS_RINGTONEPICKER = 1;
     AlarmManager alarmManager;
     PendingIntent pendingIntent;
     private long napTime;
     public static int ALARM_NOTIFICATION_REQUEST_CODE = 16;
-    public ToggleButton setAlarmButton;
+    ToggleButton setAlarmButton;
+    Button selectAlarmTone;
+    CheckBox vibrateCheckBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +48,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         setAlarmButton = (ToggleButton) findViewById(R.id.button_set_alarm);
-//        setAlarmButton.setChecked(buttonState);
+
+        vibrateCheckBox = (CheckBox) findViewById(R.id.checkbox_vibrate);
+        vibrateCheckBox.setOnCheckedChangeListener(this);
+
         setAlarmButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -59,7 +60,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                             AlarmManagerBroadcastReceiver.class);
                     pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
                             0, intent, 0);
-                    Toast.makeText(getApplicationContext(), "Alarm set",
+                    Toast.makeText(getApplicationContext(), R.string.alarm_on,
                             Toast.LENGTH_SHORT).show();
                     alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                             SystemClock.elapsedRealtime() + napTime, pendingIntent);
@@ -68,7 +69,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 } else {
                     // The toggle is disabled
                     alarmManager.cancel(pendingIntent);
-                    Toast.makeText(getApplicationContext(), "ALARM OFF",
+                    Toast.makeText(getApplicationContext(), R.string.alarm_off,
                             Toast.LENGTH_SHORT).show();
                     if (AlarmManagerBroadcastReceiver.mRingtone != null)
                         stopRingtone();
@@ -79,8 +80,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         });
 
 
-        Button selectAlarm = (Button) findViewById(R.id.select_alarm);
-        selectAlarm.setOnClickListener(new View.OnClickListener() {
+        selectAlarmTone = (Button) findViewById(R.id.select_alarm);
+        selectAlarmTone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -93,6 +94,12 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
         filter.addAction("com.hello.action");
         registerReceiver(receiver, filter);
+
+        IntentFilter filter1 = new IntentFilter();
+
+        filter.addAction("com.ringtone-name.action");
+        registerReceiver(ringtoneNameReceiver, filter1);
+
     }
 
     BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -100,9 +107,25 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         @Override
         public void onReceive(Context context, Intent intent) {
             setAlarmButton.setChecked(false);
-            finish();
         }
     };
+
+    BroadcastReceiver ringtoneNameReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String ringToneTitle = intent.getExtras().toString();
+            selectAlarmTone.setText(ringToneTitle);
+        }
+    };
+
+    @Override
+    public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+        if(isChecked) {
+            AlarmManagerBroadcastReceiver.vibrate = true;
+        } else {
+            AlarmManagerBroadcastReceiver.vibrate = false;
+        }
+    }
 
     public static void stopRingtone() {
         AlarmManagerBroadcastReceiver.mRingtone.stop();
@@ -123,7 +146,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     @Override
     protected void onStart() {
         super.onStart();
-//        setAlarmButton.setChecked(buttonState);
     }
 
 
