@@ -11,8 +11,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.PowerManager;
-import android.widget.Toast;
-
+import android.os.Vibrator;
 
 
 public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
@@ -30,10 +29,9 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 //        Toast.makeText(context, "Wake up!!!", Toast.LENGTH_LONG).show();
 
 
-
     }
 
-    public static void showNotification(Context context,Class<?> cls,String title,String content) {
+    public static void showNotification(Context context, Class<?> cls, String title, String content) {
 
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK |
@@ -43,21 +41,16 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         wakeLock.acquire();
 
 
-        if(alarmUri == null)
+        if (alarmUri == null)
             alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         mRingtone = RingtoneManager.getRingtone(context, alarmUri);
 
         mRingtone.play();
 
         Intent notificationIntent = new Intent(context, cls);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        stackBuilder.addParentStack(cls);
-        stackBuilder.addNextIntent(notificationIntent);
-
-        PendingIntent pendingIntent = stackBuilder.getPendingIntent(ALARM_NOTIFICATION_REQUEST_CODE,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context,0, notificationIntent, 0);
 
         Intent dismissIntent = new Intent(context, ButtonReceiver.class);
         dismissIntent.putExtra("notificationId", ALARM_NOTIFICATION_REQUEST_CODE);
@@ -66,17 +59,18 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
                 dismissIntent, 0);
 
         Notification notification = new Notification.Builder(context)
-                    .setSmallIcon(R.drawable.ic_stat_access_alarm)
-                    .setContentTitle(title)
-                    .setContentText(content)
-                    .setPriority(Notification.PRIORITY_MAX)
-                    // Set the intent that will fire when the user taps the notification
-                    .setContentIntent(pendingIntent)
-                    .setFullScreenIntent(pendingIntent, true)
-                    .setAutoCancel(true)
-                .addAction(R.drawable.ic_stat_access_alarm, "Dismiss Alarm", dismissPendingIntent)
-                    .build();
-
+                .setSmallIcon(R.drawable.ic_stat_access_alarm)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setPriority(Notification.PRIORITY_MAX)
+                // Set the intent that will fire when the user taps the notification
+                .setContentIntent(pendingIntent)
+//                .setFullScreenIntent(pendingIntent, false)
+                .setAutoCancel(true)
+                .addAction(R.drawable.ic_stat_alarm_off, "Dismiss Alarm", dismissPendingIntent)
+                .setVibrate(new long[]{200, 300, 500, 300, 500, 1000})
+                .build();
+        notification.flags = Notification.FLAG_INSISTENT;
 
 
         NotificationManager notificationManager = (NotificationManager)
@@ -84,11 +78,6 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         notificationManager.notify(ALARM_NOTIFICATION_REQUEST_CODE, notification);
 
         wakeLock.release();
-    }
-
-
-    public static void stopRingtone() {
-        mRingtone.stop();
     }
 
 

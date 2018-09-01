@@ -13,11 +13,13 @@ public class ButtonReceiver extends BroadcastReceiver {
         int notificationId = intent.getIntExtra("notificationId", 0);
 
         // Stop the ringtone
-        if(AlarmManagerBroadcastReceiver.mRingtone != null)
-            AlarmManagerBroadcastReceiver.stopRingtone();
+        if (AlarmManagerBroadcastReceiver.mRingtone != null)
+            MainActivity.stopRingtone();
 
-        // Uncheck the toggleButton
-
+        // Finish the MainActivity
+        Intent local = new Intent();
+        local.setAction("com.hello.action");
+        context.sendBroadcast(local);
 
         // Cancel the notification
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

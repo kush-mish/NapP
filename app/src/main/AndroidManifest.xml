@@ -3,6 +3,7 @@
     package="com.example.kush_mish.nappy">
 
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name='android.permission.WAKE_LOCK'/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" ></uses-permission>
 
