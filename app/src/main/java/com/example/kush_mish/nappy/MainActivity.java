@@ -36,12 +36,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     ToggleButton setAlarmButton;
     Button selectAlarmTone;
     CheckBox vibrateCheckBox;
+    private String ringToneTitle;
+    final private String RINGTONE_TITLE = "ringtontTitle";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         Spinner napTimeSelector = (Spinner) findViewById(R.id.spinner_nap_time);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -88,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(getApplicationContext(), RingtoneManager.TYPE_ALARM);
         Ringtone ringtone = RingtoneManager.getRingtone(getApplicationContext(), defaultRingtoneUri);
         selectAlarmTone.setText(ringtone.getTitle(getApplicationContext()));
+
         selectAlarmTone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -124,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     BroadcastReceiver ringtoneNameReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String ringToneTitle = intent.getExtras().toString();
+            ringToneTitle = intent.getExtras().toString();
             selectAlarmTone.setText(ringToneTitle);
         }
     };
@@ -143,20 +145,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-//        outState.putBoolean("buttonState", setAlarmButton.isChecked());
+    protected void onSaveInstanceState(Bundle saveInstanceState) {
+        ringToneTitle = selectAlarmTone.getText().toString();
+        saveInstanceState.putString(RINGTONE_TITLE, ringToneTitle);
+        super.onSaveInstanceState(saveInstanceState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        ringToneTitle = savedInstanceState.getString(RINGTONE_TITLE);
+        selectAlarmTone.setText(ringToneTitle);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-
+//        ringToneTitle = AlarmManagerBroadcastReceiver.mRingtone.getTitle(getApplicationContext());
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+//        selectAlarmTone.setText(ringToneTitle);
     }
 
 
