@@ -39,7 +39,7 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK |
                 PowerManager.ACQUIRE_CAUSES_WAKEUP
-                | PowerManager.ON_AFTER_RELEASE, "tag?");
+                | PowerManager.ON_AFTER_RELEASE, "tag");
 
         wakeLock.acquire();
 
@@ -50,11 +50,10 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
         mRingtone.play();
 
-        // Send ringtone title to mainActivity
-        Intent local = new Intent(context, MainActivity.class);
-        local.putExtra("ringtoneName", mRingtone.getTitle(context));
-        local.setAction("com.ringtone-name.action");
-        context.sendBroadcast(local);
+        /*
+        TODO : Send ringtone title to mainActivity
+
+        */
 
         Intent notificationIntent = new Intent(context, cls);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);

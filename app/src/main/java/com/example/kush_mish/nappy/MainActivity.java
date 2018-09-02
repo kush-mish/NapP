@@ -2,15 +2,19 @@ package com.example.kush_mish.nappy;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.Ringtone;
 import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -22,7 +26,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener,CompoundButton.OnCheckedChangeListener{
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,CompoundButton.OnCheckedChangeListener{
 
     private static final int RQS_RINGTONEPICKER = 1;
     AlarmManager alarmManager;
@@ -81,11 +85,18 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
 
         selectAlarmTone = (Button) findViewById(R.id.select_alarm);
+        Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(getApplicationContext(), RingtoneManager.TYPE_ALARM);
+        Ringtone ringtone = RingtoneManager.getRingtone(getApplicationContext(), defaultRingtoneUri);
+        selectAlarmTone.setText(ringtone.getTitle(getApplicationContext()));
         selectAlarmTone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, AlarmManagerBroadcastReceiver.alarmUri);
+                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, AlarmManagerBroadcastReceiver.alarmUri);
+                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM);
+                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Alarm Tone");
                 startActivityForResult(intent, RQS_RINGTONEPICKER);
             }
         });
@@ -140,7 +151,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     @Override
     protected void onStop() {
         super.onStop();
-//        buttonState = setAlarmButton.isChecked();
+
     }
 
     @Override
@@ -155,6 +166,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
             switch (requestCode) {
                 case 1:
                     AlarmManagerBroadcastReceiver.alarmUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                    Ringtone ringtone = RingtoneManager.getRingtone(getApplicationContext(), AlarmManagerBroadcastReceiver.alarmUri);
+                    selectAlarmTone.setText(ringtone.getTitle(getApplicationContext()));
                     break;
 
                 default:
