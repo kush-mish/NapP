@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
         selectAlarmTone = (Button) findViewById(R.id.select_alarm);
-        Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(getApplicationContext(), RingtoneManager.TYPE_ALARM);
+        final Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(getApplicationContext(), RingtoneManager.TYPE_ALARM);
         Ringtone ringtone = RingtoneManager.getRingtone(getApplicationContext(), defaultRingtoneUri);
         selectAlarmTone.setText(ringtone.getTitle(getApplicationContext()));
 
@@ -95,8 +95,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             public void onClick(View view) {
 
                 Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, AlarmManagerBroadcastReceiver.alarmUri);
-                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, AlarmManagerBroadcastReceiver.alarmUri);
+                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, defaultRingtoneUri);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Alarm Tone");
                 startActivityForResult(intent, RQS_RINGTONEPICKER);
