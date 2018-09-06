@@ -7,9 +7,12 @@ import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.PowerManager;
 import android.util.Log;
 
@@ -47,6 +50,11 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         if (alarmUri == null)
             alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         mRingtone = RingtoneManager.getRingtone(context, alarmUri);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mRingtone.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build());
+        }  else {
+            mRingtone.setStreamType(AudioAttributes.USAGE_ALARM);
+        }
 
         mRingtone.play();
 

@@ -1,65 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <Spinner
-        android:id="@+id/spinner_nap_time"
+    <ScrollView
         android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/linear_layout_main">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="4dp"
+                android:id="@+id/layout_alarm">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/primary_material_dark"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="16dp"
+                    android:paddingTop="8dp"
+                    android:shadowColor="@color/accent_material_dark_1"
+                    android:text="Nappy Alarm 1"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+
+                <Spinner
+                    android:id="@+id/spinner_nap_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="4dp"
+                    android:minHeight="48dp"
+                    android:textAlignment="center"
+                    android:textSize="14dp"></Spinner>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/select_alarm"
+                        style="?android:attr/borderlessButtonStyle"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:drawableLeft="@drawable/ic_music_note"
+                        android:gravity="center_vertical"
+                        android:paddingLeft="16dp"
+                        android:text="Alarm tone"
+                        android:textAllCaps="true"
+                        android:textSize="14dp" />
+
+                    <CheckBox
+                        android:id="@+id/checkbox_vibrate"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:minWidth="28dp"
+                        android:text="@string/vibrate"
+                        android:textAllCaps="true"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <ToggleButton
+                    android:id="@+id/button_set_alarm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@color/primary_material_dark"
+                    android:minHeight="64dp"
+                    android:text="ALARM OFF"
+                    android:textAllCaps="true"
+                    android:textOff="@string/alarm_off"
+                    android:textOn="@string/alarm_on"
+                    android:textSize="14dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_add_alarm"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="48dp"
-        android:layout_margin="32dp"
-        android:textSize="14dp"
-        android:textAlignment="center"></Spinner>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/select_alarm"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="32dp"
-            android:layout_weight="2"
-            android:padding="16dp"
-            android:textAllCaps="true"
-            android:drawableLeft="@drawable/ic_music_note"
-            android:gravity="center_vertical"
-            android:text="Alarm tone"
-            android:textSize="14dp"
-            style="?android:attr/borderlessButtonStyle" />
-
-        <CheckBox
-            android:id="@+id/checkbox_vibrate"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="32dp"
-            android:layout_weight="1"
-            android:minWidth="32dp"
-            android:text="@string/vibrate"
-            android:textSize="14dp"
-            android:textAllCaps="true" />
-    </LinearLayout>
-
-    <ToggleButton
-        android:id="@+id/button_set_alarm"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="32dp"
-        android:padding="32dp"
-        android:textSize="14dp"
-        android:text="ALARM OFF"
-        android:textAllCaps="true"
-        android:textOff="@string/alarm_off"
-        android:textOn="@string/alarm_on"/>
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="16dp"
+        android:background="@color/accent_material_dark_1"
+        android:elevation="4dp"
+        android:src="@drawable/ic_add_alarm" />
 
 
-</LinearLayout>
+</RelativeLayout>

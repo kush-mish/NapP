@@ -1,8 +1,6 @@
 package com.example.kush_mish.nappy;
 
-import android.app.Activity;
 import android.app.AlarmManager;
-import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -14,35 +12,71 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,CompoundButton.OnCheckedChangeListener{
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,
+        CompoundButton.OnCheckedChangeListener {
 
     private static final int RQS_RINGTONEPICKER = 1;
+    public static int ALARM_NOTIFICATION_REQUEST_CODE = 16;
+    final private String RINGTONE_TITLE = "ringtontTitle";
     AlarmManager alarmManager;
     PendingIntent pendingIntent;
-    private long napTime;
-    public static int ALARM_NOTIFICATION_REQUEST_CODE = 16;
     ToggleButton setAlarmButton;
     Button selectAlarmTone;
     CheckBox vibrateCheckBox;
+    ViewGroup mLinearLayout;
+
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            setAlarmButton.setChecked(false);
+        }
+    };
+    private long napTime;
     private String ringToneTitle;
-    final private String RINGTONE_TITLE = "ringtontTitle";
+    BroadcastReceiver ringtoneNameReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ringToneTitle = intent.getExtras().toString();
+            selectAlarmTone.setText(ringToneTitle);
+        }
+    };
+
+    public static void stopRingtone() {
+        AlarmManagerBroadcastReceiver.mRingtone.stop();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mLinearLayout = (ViewGroup) findViewById(R.id.layout_alarm);
+
+        FloatingActionButton fab = findViewById(R.id.fab_add_alarm);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
 
         Spinner napTimeSelector = (Spinner) findViewById(R.id.spinner_nap_time);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -70,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                             SystemClock.elapsedRealtime() + napTime, pendingIntent);
                     startService(intent);
+                    setAlarmButton.setBackground(getResources().getDrawable(R.drawable.gradient));
 
                 } else {
                     // The toggle is disabled
@@ -80,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         stopRingtone();
                     NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     manager.cancel(ALARM_NOTIFICATION_REQUEST_CODE);
+                    setAlarmButton.setBackgroundColor(getResources().getColor(R.color.primary_material_dark));
                 }
             }
         });
@@ -114,33 +150,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
-    BroadcastReceiver receiver = new BroadcastReceiver() {
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            setAlarmButton.setChecked(false);
-        }
-    };
-
-    BroadcastReceiver ringtoneNameReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            ringToneTitle = intent.getExtras().toString();
-            selectAlarmTone.setText(ringToneTitle);
-        }
-    };
 
     @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-        if(isChecked) {
+        if (isChecked) {
             AlarmManagerBroadcastReceiver.vibrate = true;
         } else {
             AlarmManagerBroadcastReceiver.vibrate = false;
         }
-    }
-
-    public static void stopRingtone() {
-        AlarmManagerBroadcastReceiver.mRingtone.stop();
     }
 
     @Override
