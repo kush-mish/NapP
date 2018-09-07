@@ -13,4 +13,5 @@
     <string name="vibrate">Vibrate</string>
     <string name="alarm_off">Alarm Off</string>
     <string name="alarm_on">Alarm On</string>
+    <string name="spinner_prompt_text">Select nap time</string>
 </resources>
