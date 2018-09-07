@@ -2,20 +2,36 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:focusableInTouchMode="true"
     android:orientation="vertical"
+    android:elevation="8dp"
     android:layout_marginTop="4dp">
 
-    <TextView
-        android:id="@+id/text_alarm_name"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/primary_material_dark"
-        android:paddingBottom="8dp"
-        android:paddingLeft="16dp"
-        android:paddingTop="8dp"
-        android:shadowColor="@color/accent_material_dark_1"
-        android:text="Nappy Alarm 1"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/text_alarm_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="8"
+            android:singleLine="true"
+            android:background="@color/primary_material_dark"
+            android:paddingBottom="8dp"
+            android:paddingLeft="16dp"
+            android:paddingTop="8dp"
+            android:shadowColor="@color/accent_material_dark_1"
+            android:text="Nappy Alarm 1"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            style="?android:attr/borderlessButtonStyle"
+            android:src="@drawable/ic_delete_alarm"
+            android:background="@color/primary_material_dark" />
+    </LinearLayout>
 
     <Spinner
         android:id="@+id/spinner_nap_time"
