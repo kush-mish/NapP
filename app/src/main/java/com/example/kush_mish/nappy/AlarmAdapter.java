@@ -16,14 +16,19 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +40,8 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
 
 
     private static ArrayList<Alarm> mAlarms;
+    private Context context;
+    private int lastPosition = -1;
 
     private static final int RQS_RINGTONEPICKER = 1;
     public static int ALARM_NOTIFICATION_REQUEST_CODE = 16;
@@ -54,7 +61,7 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
         public CheckBox vibrateCheckBox;
         public Button selectAlarmTone;
         public ToggleButton setAlarmButton;
-
+        public ImageButton deleteAlarmButton;
 
         public AlarmViewHolder(View itemView) {
             super(itemView);
@@ -63,11 +70,14 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
             vibrateCheckBox = (CheckBox) itemView.findViewById(R.id.checkbox_vibrate);
             selectAlarmTone = (Button) itemView.findViewById(R.id.select_alarm);
             setAlarmButton = (ToggleButton) itemView.findViewById(R.id.button_set_alarm);
-        }
+            deleteAlarmButton = (ImageButton) itemView.findViewById(R.id.button_delete_alarm);
+
+            }
     }
 
-    public AlarmAdapter(ArrayList<Alarm> alarms) {
+    public AlarmAdapter(ArrayList<Alarm> alarms, Context context) {
         mAlarms = alarms;
+        this.context = context;
     }
 
     @Override
@@ -78,10 +88,34 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
     }
 
     @Override
-    public void onBindViewHolder(AlarmViewHolder holder, int position) {
+    public void onBindViewHolder(final AlarmViewHolder holder, final int position) {
 
-        Alarm alarm = mAlarms.get(position);
+        final Alarm alarm = mAlarms.get(position);
         holder.alarmNameText.setText(alarm.getmAlarmName());
+
+        holder.deleteAlarmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteAlarm(holder.getAdapterPosition());
+            }
+        });
+
+    }
+
+    private void deleteAlarm(int position) {
+        mAlarms.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    private void setAnimation(View viewToAnimate, int position)
+    {
+        // If the bound view wasn't previously displayed on screen, it's animated
+        if (position > lastPosition)
+        {
+            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left);
+            viewToAnimate.startAnimation(animation);
+            lastPosition = position;
+        }
     }
 
     @Override

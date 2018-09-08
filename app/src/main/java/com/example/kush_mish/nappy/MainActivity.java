@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity /*implements AdapterView.OnI
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
-        alarmAdapter = new AlarmAdapter(mAlarms);
+        alarmAdapter = new AlarmAdapter(mAlarms, getApplicationContext());
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(alarmAdapter);
@@ -75,10 +75,14 @@ public class MainActivity extends AppCompatActivity /*implements AdapterView.OnI
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int newAlarmId = mAlarms.size() + 1;
-                addAlarm(new Alarm(newAlarmId, "Nappy Alarm " + newAlarmId));
-                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                int noOfAlarms = mAlarms.size();
+                if(noOfAlarms != 5) {
+                    int newAlarmId = mAlarms.size() + 1;
+                    addAlarm(new Alarm(newAlarmId, "Nappy Alarm " + newAlarmId));
+                } else {
+                    Snackbar.make(view, "How much do you wanna sleep?", Snackbar.LENGTH_SHORT)
+                            .setAction("Action", null).show();
+                }
             }
         });
 //
