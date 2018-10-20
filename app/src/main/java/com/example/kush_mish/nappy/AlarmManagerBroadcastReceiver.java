@@ -21,20 +21,17 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
     public static Ringtone mRingtone;
     public static Uri alarmUri;
-    public static int ALARM_NOTIFICATION_REQUEST_CODE = 16;
     public static boolean vibrate;
+    private static int alarmId;
+    private static String alarmName;
 
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
-
-        showNotification(context, MainActivity.class, "Nappy alarm", "Wake up ! !", vibrate);
-
-
-//        Toast.makeText(context, "Wake up!!!", Toast.LENGTH_LONG).show();
-
-
+        alarmName = intent.getStringExtra("alarmName");
+        alarmId = intent.getIntExtra("alarmId", 1);
+        showNotification(context, MainActivity.class, alarmName, "Wake up ! !", vibrate);
     }
 
     public static void showNotification(Context context, Class<?> cls, String title, String content, boolean vibrate) {
@@ -42,10 +39,9 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK |
                 PowerManager.ACQUIRE_CAUSES_WAKEUP
-                | PowerManager.ON_AFTER_RELEASE, "tag");
+                | PowerManager.ON_AFTER_RELEASE, "tag:");
 
         wakeLock.acquire();
-
 
         if (alarmUri == null)
             alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
@@ -58,20 +54,18 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
         mRingtone.play();
 
-        /*
-        TODO : Send ringtone title to mainActivity
-
-        */
 
         Intent notificationIntent = new Intent(context, cls);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(context,0, notificationIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, alarmId, notificationIntent, 0);
+        Log.e("Alarm ID: ", alarmId + "");
+        Log.e("Alarm Name: ", alarmName + "");
 
         Intent dismissIntent = new Intent(context, ButtonReceiver.class);
-        dismissIntent.putExtra("notificationId", ALARM_NOTIFICATION_REQUEST_CODE);
+        dismissIntent.putExtra("notificationId", alarmId);
 
-        PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(context, 0,
+        PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(context, alarmId,
                 dismissIntent, 0);
 
         Notification.Builder notificationBuilder = new Notification.Builder(context)
@@ -87,7 +81,7 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
         if (vibrate) {
             Log.e("Vibration", "vibrate on");
-            notificationBuilder.setVibrate(new long[]{200, 300, 500, 300, 500, 1000});
+            notificationBuilder.setVibrate(new long[]{0, 1000, 1000, 1000, 1000, 0});
         } else {
             Log.e("Vibration", "vibrate off");
         }
@@ -99,7 +93,7 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(ALARM_NOTIFICATION_REQUEST_CODE, notification);
+        notificationManager.notify(alarmId, notification);
 
         wakeLock.release();
     }

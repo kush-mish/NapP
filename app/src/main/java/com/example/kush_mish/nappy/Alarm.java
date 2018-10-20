@@ -18,4 +18,8 @@ public class Alarm{
     public String getmAlarmName() {
         return mAlarmName;
     }
+
+    public void setAlarmName(String alarmName) {
+        mAlarmName = alarmName;
+    }
 }
