@@ -2,7 +2,6 @@ package com.example.kush_mish.nappy;
 
 import android.app.Activity;
 import android.app.AlarmManager;
-import android.app.LauncherActivity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -12,18 +11,12 @@ import android.content.IntentFilter;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.net.sip.SipSession;
+import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -36,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder> {
@@ -60,18 +54,16 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
         public TextView alarmNameText;
         public Spinner napTimeSelector;
         public CheckBox vibrateCheckBox;
-        public Button selectAlarmTone;
+        public Button selectAlarmToneButton;
         public ToggleButton setAlarmButton;
         public ImageButton deleteAlarmButton;
-        final Uri defaultRingtoneUri = RingtoneManager.getActualDefaultRingtoneUri(mContext,
-                RingtoneManager.TYPE_ALARM);
 
         public AlarmViewHolder(View itemView) {
             super(itemView);
             alarmNameText = (TextView) itemView.findViewById(R.id.text_alarm_name);
             napTimeSelector = (Spinner) itemView.findViewById(R.id.spinner_nap_time);
             vibrateCheckBox = (CheckBox) itemView.findViewById(R.id.checkbox_vibrate);
-            selectAlarmTone = (Button) itemView.findViewById(R.id.select_alarm);
+            selectAlarmToneButton = (Button) itemView.findViewById(R.id.select_alarm);
             setAlarmButton = (ToggleButton) itemView.findViewById(R.id.button_set_alarm);
             deleteAlarmButton = (ImageButton) itemView.findViewById(R.id.button_delete_alarm);
 
@@ -83,23 +75,6 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             napTimeSelector.setAdapter(adapter);
             napTimeSelector.setOnItemSelectedListener(this);
-
-
-            /*
-             * selectAlarmTone button opens up a Ringtone Picker dialog
-             *
-             * */
-            final Ringtone ringtone = RingtoneManager.getRingtone(mContext, defaultRingtoneUri);
-            selectAlarmTone.setText(ringtone.getTitle(mContext));
-
-            selectAlarmTone.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View view) {
-
-                    mAdapterCallback.onMethodCallback(selectAlarmTone, defaultRingtoneUri, ringtone);
-                }
-            });
 
             vibrateCheckBox.setOnCheckedChangeListener(this);
 
@@ -182,7 +157,11 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
                 RingtoneManager.TYPE_ALARM);
 
         alarm = mAlarms.get(position);
-        holder.alarmNameText.setText(alarm.getmAlarmName());
+        holder.alarmNameText.setText(alarm.getAlarmName());
+        alarm.setButton(holder.selectAlarmToneButton);
+        alarm.setSetButton(holder.setAlarmButton);
+        alarm.setSpinner(holder.napTimeSelector);
+        alarm.setRingtoneUri(defaultRingtoneUri);
 
         // Set selection of the dropdown menu to the first item
         holder.napTimeSelector.setSelection(0);
@@ -192,7 +171,21 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
 
         holder.setAlarmButton.setChecked(false);
         final Ringtone ringtone = RingtoneManager.getRingtone(mContext, defaultRingtoneUri);
-        holder.selectAlarmTone.setText(ringtone.getTitle(mContext));
+        holder.selectAlarmToneButton.setText(ringtone.getTitle(mContext));
+
+        /*
+         * selectAlarmToneButton button opens up a Ringtone Picker dialog
+         *
+         * */
+
+        holder.selectAlarmToneButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+
+                mAdapterCallback.onMethodCallback(holder.selectAlarmToneButton, defaultRingtoneUri, ringtone);
+            }
+        });
 
         holder.deleteAlarmButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -202,37 +195,28 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
         });
 
         /*
-         * The toggleButton selectAlarmTone sends broadcast to AlarmManagerBroadcastReceiver class
+         * The toggleButton selectAlarmToneButton sends broadcast to AlarmManagerBroadcastReceiver class
          * to start playing ringtone after the specified napTime
          *
          * */
         holder.setAlarmButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                for(Alarm al : mAlarms) {
+                    if(al.getSetButton() == holder.setAlarmButton)
+                        alarm = al;
+                }
+
                 if (isChecked) {
                     // The toggle is enabled
                     holder.alarmNameText.clearFocus();
                     hideKeyboardFrom(mContext, holder.alarmNameText.getRootView());
-                    alarm.setAlarmName(holder.alarmNameText.getText() + "");
-                    Intent intent = new Intent(mContext,
-                            AlarmManagerBroadcastReceiver.class);
-                    intent.putExtra("alarmId", alarm.getmAlarmId());
-                    intent.putExtra("alarmName", alarm.getmAlarmName());
-                    Log.e("Alarm ID =>", alarm.getmAlarmId() + "");
-                    Log.e("Alarm Name =>", alarm.getmAlarmName() + "");
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext,
-                            alarm.getmAlarmId(), intent, 0);
-                    Toast.makeText(mContext, R.string.alarm_on,
-                            Toast.LENGTH_SHORT).show();
-                    AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-                    alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                            SystemClock.elapsedRealtime() + napTime,
-                            pendingIntent);
-                    mContext.startService(intent);
+                    setAlarmOn(holder, alarm);
                     holder.setAlarmButton.setBackground(mContext.getResources().getDrawable(R.drawable.gradient));
 
                 } else {
                     // The toggle is disabled
-                    setAlarmOff(holder);
+                    setAlarmOff(holder, alarm);
                 }
             }
         });
@@ -267,31 +251,59 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmAdapter.AlarmViewHol
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    public static void setAlarmOff(AlarmViewHolder holder) {
+    public static void setAlarmOn(AlarmViewHolder holder, Alarm setAlarm) {
+        setAlarm.isOn = true;
+        setAlarm.setAlarmName(holder.alarmNameText.getText() + "");
         Intent intent = new Intent(mContext,
                 AlarmManagerBroadcastReceiver.class);
+        intent.putExtra("alarmId", setAlarm.getAlarmId());
+        intent.putExtra("alarmName", setAlarm.getAlarmName());
+        intent.putExtra("alarmUri", setAlarm.getRingtoneUri().toString());
+//        Log.e("Alarm ID =>", setAlarm.getAlarmId() + "");
+//        Log.e("Alarm Name =>", setAlarm.getAlarmName() + "");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext,
-                alarm.getmAlarmId(), intent, 0);
+                setAlarm.getAlarmId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Toast.makeText(mContext, R.string.alarm_on + " " + setAlarm.getAlarmId(),
+                Toast.LENGTH_SHORT).show();
+
         AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + setAlarm.getNapTime(),
+                pendingIntent);
+        mContext.startService(intent);
+    }
+
+    public static void setRingtone( Ringtone ringtone){
+        alarm.setRingtone(ringtone);
+    }
+
+    public static void setAlarmOff(AlarmViewHolder holder, Alarm setAlarm) {
+        Intent intent = new Intent(mContext, AlarmManagerBroadcastReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext,
+                setAlarm.getAlarmId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+        Ringtone playingRingtone = setAlarm.getRingtone();
+
+        if (playingRingtone != null)
+            stopRingtone(playingRingtone);
         alarmManager.cancel(pendingIntent);
-        if (AlarmManagerBroadcastReceiver.mRingtone != null)
-            stopRingtone();
         NotificationManager manager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.cancel(alarm.getmAlarmId());
+        manager.cancel(setAlarm.getAlarmId());
         holder.setAlarmButton.setBackgroundColor(mContext.getResources().getColor(R.color.primary_material_dark));
+        setAlarm.isOn = false;
     }
 
 
     /* Stop ringtone */
-    public static void stopRingtone() {
-        AlarmManagerBroadcastReceiver.mRingtone.stop();
+    public static void stopRingtone(Ringtone ringtone) {
+        ringtone.stop();
     }
 
     /* Delete the alarm */
     private void deleteAlarm(int position, AlarmViewHolder holder) {
         mAlarms.remove(position);
         notifyItemRemoved(position);
-        setAlarmOff(holder);
+        setAlarmOff(holder, alarm);
         mAdapterCallback.resetRingtoneCallback();
     }
 

@@ -39,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Alarm> mAlarms = new ArrayList<>();
     private RecyclerView recyclerView;
     private AlarmAdapter alarmAdapter;
+    private int alarmIdCounter = 0;
+    private Alarm mAlarm;
 
 
     private static final int REQUEST_RINGTONE_PICKER = 1;
@@ -52,21 +54,29 @@ public class MainActivity extends AppCompatActivity {
 
     AlarmAdapter.AdapterCallback callback = new AlarmAdapter.AdapterCallback() {
         @Override
-        public void onMethodCallback(Button selectAlarmTone, Uri defaultRingtoneUri, Ringtone ringtone) {
+        public void onMethodCallback(Button selectAlarmTone, Uri defaultRingtoneUri,
+                                     Ringtone ringtone) {
 
+            for(Alarm al : mAlarms) {
+                if(al.getButton() == selectAlarmTone)
+                    mAlarm = al;
+            }
             mSelectAlarmTone = selectAlarmTone;
+            currentRingtoneUri = mAlarm.getRingtoneUri();
+
             /*
-             * selectAlarmTone button opens up a Ringtone Picker dialog
+             * selectAlarmToneButton button opens up a Ringtone Picker dialog
              *
              * */
 
             Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-            if (currentRingtoneUri == null)
+            if (mAlarm.getRingtoneUri() == null) {
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, defaultRingtoneUri);
+            }
             else intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, currentRingtoneUri);
             intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM);
-            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Alarm Tone");
-            startActivityForResult(intent, REQUEST_RINGTONE_PICKER);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Alarm Tone-" + mAlarm.getAlarmId());
+            startActivityForResult(intent, mAlarm.getAlarmId());
         }
 
         @Override
@@ -90,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
         /*
          * Add first alarm */
-        addAlarm(new Alarm(1, "NapP Alarm 1"));
+        addAlarm(new Alarm(++alarmIdCounter, "NapP Alarm 1"));
 
         FloatingActionButton fab = findViewById(R.id.fab_add_alarm);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -98,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 int noOfAlarms = mAlarms.size();
                 if(noOfAlarms != 5) {
-                    int newAlarmId = mAlarms.size() + 1;
+                    int newAlarmId = ++alarmIdCounter;
                     addAlarm(new Alarm(newAlarmId, "NapP Alarm " + newAlarmId));
                     recyclerView.scrollToPosition(newAlarmId - 1);
                 } else {
@@ -109,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 //
-//        /* Ringtone name receiver which sets ringtone name on the selectAlarmTone button*/
+//        /* Ringtone name receiver which sets ringtone name on the selectAlarmToneButton button*/
 //        IntentFilter filter = new IntentFilter();
 //
 //        filter.addAction("com.ringtone-name.action");
@@ -121,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
 //    @Override
 //    protected void onSaveInstanceState(Bundle saveInstanceState) {
-//        ringToneTitle = selectAlarmTone.getText().toString();
+//        ringToneTitle = selectAlarmToneButton.getText().toString();
 //        saveInstanceState.putString(RINGTONE_TITLE, ringToneTitle);
 //        super.onSaveInstanceState(saveInstanceState);
 //    }
@@ -130,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
 //    protected void onRestoreInstanceState(Bundle savedInstanceState) {
 //        super.onRestoreInstanceState(savedInstanceState);
 //        ringToneTitle = savedInstanceState.getString(RINGTONE_TITLE);
-//        selectAlarmTone.setText(ringToneTitle);
+//        selectAlarmToneButton.setText(ringToneTitle);
 //    }
 
 
@@ -148,16 +158,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                case 1:
-                    AlarmManagerBroadcastReceiver.alarmUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-                    Ringtone ringtone = RingtoneManager.getRingtone(getApplicationContext(), AlarmManagerBroadcastReceiver.alarmUri);
-                    mSelectAlarmTone.setText(ringtone.getTitle(getApplicationContext()));
-                    currentRingtoneUri = AlarmManagerBroadcastReceiver.alarmUri;
-                    break;
-
-                default:
-                    break;
+            if (requestCode > 0) {
+                Uri alarmUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                mAlarm.setRingtoneUri(alarmUri);
+                Ringtone ringtone = RingtoneManager.getRingtone(getApplicationContext(), alarmUri);
+                mSelectAlarmTone.setText(ringtone.getTitle(getApplicationContext()));
+                currentRingtoneUri = alarmUri;
             }
         }
     }

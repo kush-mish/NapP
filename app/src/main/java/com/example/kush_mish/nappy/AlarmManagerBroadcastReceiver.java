@@ -16,6 +16,8 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.util.Log;
 
+import java.io.Serializable;
+
 
 public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
@@ -24,6 +26,8 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
     public static boolean vibrate;
     private static int alarmId;
     private static String alarmName;
+    private static Alarm mAlarm;
+
 
 
     @Override
@@ -31,10 +35,11 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
         alarmName = intent.getStringExtra("alarmName");
         alarmId = intent.getIntExtra("alarmId", 1);
+        alarmUri = Uri.parse(intent.getStringExtra("alarmUri"));
         showNotification(context, MainActivity.class, alarmName, "Wake up ! !", vibrate);
     }
 
-    public static void showNotification(Context context, Class<?> cls, String title, String content, boolean vibrate) {
+    public  void showNotification(Context context, Class<?> cls, String title, String content, boolean vibrate) {
 
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK |
@@ -43,9 +48,9 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
 
         wakeLock.acquire();
 
-        if (alarmUri == null)
-            alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         mRingtone = RingtoneManager.getRingtone(context, alarmUri);
+        AlarmAdapter.setRingtone(mRingtone);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mRingtone.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build());
         }  else {
@@ -59,8 +64,8 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, alarmId, notificationIntent, 0);
-        Log.e("Alarm ID: ", alarmId + "");
-        Log.e("Alarm Name: ", alarmName + "");
+//        Log.e("Alarm ID: ", alarmId + "");
+//        Log.e("Alarm Name: ", alarmName + "");
 
         Intent dismissIntent = new Intent(context, ButtonReceiver.class);
         dismissIntent.putExtra("notificationId", alarmId);
@@ -71,11 +76,11 @@ public class AlarmManagerBroadcastReceiver extends BroadcastReceiver {
         Notification.Builder notificationBuilder = new Notification.Builder(context)
                 .setSmallIcon(R.drawable.ic_stat_access_alarm)
                 .setContentTitle(title)
-                .setContentText(content)
+                .setContentText(mRingtone.getTitle(context))
                 .setPriority(Notification.PRIORITY_MAX)
                 // Set the intent that will fire when the user taps the notification
                 .setContentIntent(pendingIntent)
-//                .setFullScreenIntent(pendingIntent, false)
+                .setFullScreenIntent(pendingIntent, false)
                 .setAutoCancel(true)
                 .addAction(R.drawable.ic_stat_alarm_off, "Dismiss Alarm", dismissPendingIntent);
 
